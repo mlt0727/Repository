@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solubility Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            margin: 5px;
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result-container {
+            margin-top: 20px;
+        }
+        #reason_label {
+            width: 90%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <label for="element1">Enter the compound: </label>
+        <div>
+            <input type="text" id="element1" placeholder="Element1" style="width: 60px;">
+            <input type="text" id="electron1" placeholder="electron" style="width: 50px;">
+            <input type="text" id="element2" placeholder="Element2" style="width: 60px;">
+            <input type="text" id="electron2" placeholder="electron" style="width: 50px;">
+            <button id="submit_button">Submit</button>
+        </div>
+        <div class="result-container">
+            <label id="result_label" style="font-size: 18px; color: #333;"></label>
+            <textarea id="reason_label" rows="4" readonly></textarea>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const leftElements = ["NH4", "Li", "Na", "K", "Mg", "Ca", "Ba", "Fe", "Cu", "Ag", "Zn", "Pb", "Al", "Sr", "Rb", "Cs", "Fr", "Hg2"];
+            const rightElements = ["F", "Cl", "Br", "I", "ClO3", "OH", "SO4", "NO3", "NO2", "CO3", "PO4", "CrO4", "SiO4", "CH3COO"];
+
+            const element1 = document.getElementById('element1');
+            const electron1 = document.getElementById('electron1');
+            const element2 = document.getElementById('element2');
+            const electron2 = document.getElementById('electron2');
+            const resultLabel = document.getElementById('result_label');
+            const reasonLabel = document.getElementById('reason_label');
+            const submitButton = document.getElementById('submit_button');
+
+            function checkAndMoveFocus(inputElement, nextElement, elementArray) {
+                if (elementArray.includes(inputElement.value)) {
+                    nextElement.focus();
+                }
+            }
+
+            element1.addEventListener('input', () => {
+                checkAndMoveFocus(element1, electron1, leftElements);
+            });
+
+            electron1.addEventListener('input', () => {
+                if (electron1.value.length >= 1) {
+                    element2.focus();
+                }
+            });
+
+            element2.addEventListener('input', () => {
+                checkAndMoveFocus(element2, electron2, rightElements);
+            });
+
+            electron2.addEventListener('input', () => {
+                if (electron2.value.length >= 1) {
+                    getResult();
+                }
+            });
+
+            submitButton.addEventListener('click', () => {
+                getResult();
+            });
+
+            function getResult() {
+                let result = "NOT FOUND";
+                let reason = "";
+
+                if (element1.value === "NH4" || ["Na", "K", "Rb", "Cs", "Fr"].includes(element1.value)) {
+                    result = "Soluble";
+                    reason += `Rule 1: '${element1.value}' is always soluble.  `;
+                }
+
+                if (["NO3", "CH3COO", "ClO3"].includes(element2.value)) {
+                    result = "Soluble";
+                    reason += `Rule 2: '${element2.value}' is soluble.  `;
+                }
+
+                if (["Cl", "Br", "I"].includes(element2.value)) {
+                    result = "Soluble";
+                    reason += `Rule 3: Most halides are soluble, except for fluorine (F), and no exceptions encountered: silver (Ag⁺), mercury(I) (Hg₂²⁺), and lead(II) (Pb²⁺).  `;
+                    if (element1.value === "Ag" || (element1.value === "Hg2" && electron2.value === "2") || (element1.value === "Pb" && electron2.value === "2")) {
+                        result = "Insoluble";
+                        reason += `Rule 3: Most halides are soluble, but silver (Ag⁺), mercury(I) (Hg₂²⁺), and lead(II) (Pb²⁺) are exceptions.  `;
+                    }
+                }
+
+                if (element2.value === "SO4") {
+                    result = "Soluble";
+                    reason += `Rule 4: Most sulfates (SO₄²⁻) are soluble, with no exceptions encountered: barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead(II) (Pb²⁺).  `;
+                    if (["Ba", "Sr", "Ca"].includes(element1.value) || (element1.value === "Pb" && electron2.value === "2")) {
+                        result = "Insoluble";
+                        reason += `Rule 4: Most sulfates (SO₄²⁻) are soluble, but barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead(II) (Pb²⁺) are exceptions.  `;
+                    }
+                }
+
+                if (["CO3", "CrO4", "SiO4", "PO4"].includes(element2.value)) {
+                    result = "Insoluble";
+                    reason += `Rule 5: Most carbonates, chromates, silicates, and phosphates are insoluble, unless combined with Group 1 elements or ammonium (NH₄⁺).  `;
+                    if (["Li", "Na", "K", "Rb", "Cs", "Fr"].includes(element1.value)) {
+                        result = "Soluble";
+                        reason += `Rule 5: Exception: combined with Group 1 elements or ammonium (NH₄⁺).  `;
+                    }
+                }
+
+                if (element2.value === "OH") {
+                    result = "Insoluble";
+                    reason += `Rule 7: Most hydroxides (OH⁻) are insoluble, unless combined with elements from Rule 1.  `;
+                    if (["Li", "Na", "K", "Rb", "Cs", "Fr", "Ca", "Ba", "Sr"].includes(element1.value)) {
+                        result = "Soluble";
+                        reason += `Rule 7: Exception: combined with Group 1 elements or calcium, barium, strontium.  `;
+                    }
+                }
+
+                resultLabel.textContent = result;
+                reasonLabel.value = reason;
+            }
+        });
+    </script>
+</body>
+</html>

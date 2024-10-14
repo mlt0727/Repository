@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soluble-Insoluble Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            margin: 5px;
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result-container {
+            margin-top: 20px;
+        }
+        #reason_label {
+            width: 90%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <label for="element1">请输入此化合物: </label>
+        <div>
+            <input type="text" id="element1" placeholder="元素1" style="width: 50px;">
+            <input type="text" id="electron1" placeholder="电子" style="width: 40px;">
+            <input type="text" id="element2" placeholder="元素2" style="width: 50px;">
+            <input type="text" id="electron2" placeholder="电子" style="width: 40px;">
+            <button id="submit_button">提交</button>
+        </div>
+        <div class="result-container">
+            <label id="result_label" style="font-size: 18px; color: #333;"></label>
+            <textarea id="reason_label" rows="4" readonly></textarea>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const leftElements = ["NH4", "Li", "Na", "K", "Mg", "Ca", "Ba", "Fe", "Cu", "Ag", "Zn", "Pb", "Al", "Sr", "Rb", "Cs", "Fr", "Hg2"];
+            const rightElements = ["F", "Cl", "Br", "I", "ClO3", "OH", "SO4", "NO3", "NO2", "CO3", "PO4", "CrO4", "SiO4", "CH3COO"];
+
+            const element1 = document.getElementById('element1');
+            const electron1 = document.getElementById('electron1');
+            const element2 = document.getElementById('element2');
+            const electron2 = document.getElementById('electron2');
+            const resultLabel = document.getElementById('result_label');
+            const reasonLabel = document.getElementById('reason_label');
+            const submitButton = document.getElementById('submit_button');
+
+            function checkAndMoveFocus(inputElement, nextElement, elementArray) {
+                if (elementArray.includes(inputElement.value)) {
+                    nextElement.focus();
+                }
+            }
+
+            element1.addEventListener('input', () => {
+                checkAndMoveFocus(element1, electron1, leftElements);
+            });
+
+            electron1.addEventListener('input', () => {
+                if (electron1.value.length >= 1) {
+                    element2.focus();
+                }
+            });
+
+            element2.addEventListener('input', () => {
+                checkAndMoveFocus(element2, electron2, rightElements);
+            });
+
+            electron2.addEventListener('input', () => {
+                if (electron2.value.length >= 1) {
+                    getResult();
+                }
+            });
+
+            submitButton.addEventListener('click', () => {
+                getResult();
+            });
+
+            function getResult() {
+                let result = "NOT FOUND";
+                let reason = "";
+
+                if (element1.value === "NH4" || ["Na", "K", "Rb", "Cs", "Fr"].includes(element1.value)) {
+                    result = "可溶";
+                    reason += `规则一：'${element1.value}'永远是可溶的  `;
+                }
+
+                if (["NO3", "CH3COO", "ClO3"].includes(element2.value)) {
+                    result = "可溶";
+                    reason += `规则二：'${element2.value}'是可溶的  `;
+                }
+
+                if (["Cl", "Br", "I"].includes(element2.value)) {
+                    result = "可溶";
+                    reason += `规则三：大多数卤素与金属形成的二元化合物都是可溶的，除了氟（F）, 并且没有碰到例外: 银（Ag⁺）、汞(I)（Hg₂²⁺）和铅(II)（Pb²⁺）  `;
+                    if (element1.value === "Ag" || (element1.value === "Hg2" && electron2.value === "2") || (element1.value === "Pb" && electron2.value === "2")) {
+                        result = "不可溶";
+                        reason += `规则三：大多数卤素与金属形成的二元化合物都是可溶的，但银（Ag⁺）、汞(I)（Hg₂²⁺）和铅(II)（Pb²⁺）是例外  `;
+                    }
+                }
+
+                if (element2.value === "SO4") {
+                    result = "可溶";
+                    reason += `规则四：大多数硫酸盐（SO₄²⁻）是可溶的, 并且没有碰到例外: 钡（Ba²⁺）、锶（Sr²⁺）、钙（Ca²⁺）和铅(II)（Pb²⁺）  `;
+                    if (["Ba", "Sr", "Ca"].includes(element1.value) || (element1.value === "Pb" && electron2.value === "2")) {
+                        result = "不可溶";
+                        reason += `规则四：大多数硫酸盐（SO₄²⁻）是可溶的，但钡（Ba²⁺）、锶（Sr²⁺）、钙（Ca²⁺）和铅(II)（Pb²⁺）是例外  `;
+                    }
+                }
+
+                if (["CO3", "CrO4", "SiO4", "PO4"].includes(element2.value)) {
+                    result = "不可溶";
+                    reason += `规则五：大多数碳酸盐、鉻酸盐、硅酸盐和磷酸盐是不可溶的，除非它们与规则1的第1族元素或铵（NH₄⁺）结合  `;
+                    if (["Li", "Na", "K", "Rb", "Cs", "Fr"].includes(element1.value)) {
+                        result = "可溶";
+                        reason += `规则五：例外：与第1族元素或铵（NH₄⁺）结合  `;
+                    }
+                }
+
+                if (element2.value === "OH") {
+                    result = "不可溶";
+                    reason += `规则七：大多数氢氧化物（OH⁻）是不可溶的，除非与规则1中的元素结合  `;
+                    if (["Li", "Na", "K", "Rb", "Cs", "Fr", "Ca", "Ba", "Sr"].includes(element1.value)) {
+                        result = "可溶";
+                        reason += `规则七：例外：与第1族元素或钙、钡、锶结合  `;
+                    }
+                }
+
+                resultLabel.textContent = result;
+                reasonLabel.value = reason;
+            }
+        });
+    </script>
+</body>
+</html>
