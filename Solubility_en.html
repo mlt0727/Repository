@@ -257,7 +257,7 @@
                 if (element2.value === "OH") {
                     result = languageSelect.value === 'zh' ? "不可溶" : "Insoluble";
                     reason += languageSelect.value === 'zh' ? `规则7: 大多数氢氧化物 (OH⁻) 是不可溶的，除非与第 1 族元素或钙 (Ca)、钡 (Ba)、锶 (Sr) 结合.  ` : `Rule 7: Most hydroxides (OH⁻) are insoluble, unless combined with Group 1 elements, calcium (Ca), barium (Ba), or strontium (Sr).  `;
-                    if (["Li", "Na", "K", "Rb", "Cs", "Fr", "Ca", "Ba", "Sr"].includes(element1.value)) {
+                    if (["Li", "Na", "K", "Rb", "Cs", "Fr", "Ca", "Ba", "Sr","NH4"].includes(element1.value)) {
                         result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
                         reason += languageSelect.value === 'zh' ? `规则7: 由于与第 1 族元素或钙、钡、锶结合，该化合物是可溶的.  ` : `Rule 7: Due to being combined with Group 1 elements or calcium, barium, strontium, the compound is soluble.  `;
                     }
