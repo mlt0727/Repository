@@ -9,10 +9,11 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             display: flex;
-            justify-content: center;
+            justify-content: space-around;
             align-items: center;
             height: 100vh;
             margin: 0;
+            padding: 0 50px;
         }
         .container {
             background-color: #ffffff;
@@ -20,6 +21,11 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 400px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
         }
         label {
             font-weight: bold;
@@ -55,11 +61,38 @@
             resize: none;
             margin-top: 10px;
         }
+        .language-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        .rules-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            height: 80%;
+            overflow-y: auto;
+        }
+        .rules-header {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+	.source-link {
+            position: fixed;
+            bottom: 10px;
+            left: 20px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <label for="element1">Enter the compound: </label>
+        <h1 id="title">Soluble or Insoluble?</h1>
+        <label id="compound_label" for="element1">Enter the compound: </label>
         <div>
             <input type="text" id="element1" placeholder="Element1" style="width: 60px;">
             <input type="text" id="electron1" placeholder="electron" style="width: 50px;">
@@ -72,11 +105,33 @@
             <textarea id="reason_label" rows="4" readonly></textarea>
         </div>
     </div>
+    <div class="rules-container" id="rules">
+        <div class="rules-header">Solubility Rules</div>
+        <p id="rules_text">
+            Rule 1: All compounds of Group 1 (Li, Na, K, etc.) and ammonium (NH₄⁺) are soluble.<br><br>
+            Rule 2: All nitrates (NO₃⁻), acetates (CH₃COO⁻), and chlorates (ClO₃⁻) are soluble.<br><br>
+            Rule 3: Most binary compounds of the halogens (other than fluorine) with metals are soluble, except for those of silver (Ag⁺), mercury(I) (Hg₂²⁺), and lead(II) (Pb²⁺).<br><br>
+            Rule 4: Most sulfates (SO₄²⁻) are soluble, except for those of barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead(II) (Pb²⁺).<br><br>
+            Rule 5: Most carbonates (CO₃²⁻), chromates (CrO₄²⁻), silicates (SiO₄⁴⁻), and phosphates (PO₄³⁻) are insoluble, except for those of rule 1 (Group 1 and ammonium).<br><br>
+            Rule 6: Most sulfides (S²⁻) are insoluble, except for those of rule 1 (Group 1 and ammonium) and calcium (Ca²⁺), barium (Ba²⁺), strontium (Sr²⁺), and magnesium (Mg²⁺).<br><br>
+            Rule 7: Most hydroxides (OH⁻) are insoluble, except for those of rule 1 (Group 1 and ammonium) and calcium (Ca²⁺), barium (Ba²⁺), and strontium (Sr²⁺).
+        </p>
+    </div>
+    <div class="language-container">
+        <label for="language">Language: </label>
+        <select id="language">
+            <option value="en">English</option>
+            <option value="zh">中文 (Chinese)</option>
+        </select>
+    </div>
+<a href="https://github.com/mlt0727/Repository/blob/6d1b8aaeaeb34764673762452b80ad3a8c0b6d5e/Solubility_en.html" class="source-link" target="_blank">Source Code</a>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const leftElements = ["NH4", "Li", "Na", "K", "Mg", "Ca", "Ba", "Fe", "Cu", "Ag", "Zn", "Pb", "Al", "Sr", "Rb", "Cs", "Fr", "Hg2"];
             const rightElements = ["F", "Cl", "Br", "I", "ClO3", "OH", "SO4", "NO3", "NO2", "CO3", "PO4", "CrO4", "SiO4", "CH3COO"];
 
+            const languageSelect = document.getElementById('language');
+            const compoundLabel = document.getElementById('compound_label');
             const element1 = document.getElementById('element1');
             const electron1 = document.getElementById('electron1');
             const element2 = document.getElementById('element2');
@@ -84,6 +139,49 @@
             const resultLabel = document.getElementById('result_label');
             const reasonLabel = document.getElementById('reason_label');
             const submitButton = document.getElementById('submit_button');
+            const title = document.getElementById('title');
+            const rulesText = document.getElementById('rules_text');
+
+            function updateLanguage() {
+                if (languageSelect.value === 'zh') {
+                    compoundLabel.textContent = '请输入此化合物: ';
+                    element1.placeholder = '元素 1';
+                    electron1.placeholder = '电子';
+                    element2.placeholder = '元素 2';
+                    electron2.placeholder = '电子';
+                    submitButton.textContent = '提交';
+                    title.textContent = '可不可溶？';
+                    rulesText.innerHTML = `
+                        规则1: 所有第1族元素（Li、Na、K 等）和铵（NH₄⁺）的化合物都是可溶的。<br><br>
+                        规则2: 所有硝酸盐（NO₃⁻）、乙酸盐（CH₃COO⁻）和氯酸盐（ClO₃⁻）都是可溶的。<br><br>
+                        规则3: 大多数卤素（除了氟）与金属形成的二元化合物都是可溶的，除了银（Ag⁺）、汞(I)（Hg₂²⁺）和铅(II)（Pb²⁺）的化合物。<br><br>
+                        规则4: 大多数硫酸盐（SO₄²⁻）是可溶的，除了钡（Ba²⁺）、锶（Sr²⁺）、钙（Ca²⁺）和铅(II)（Pb²⁺）的化合物。<br><br>
+                        规则5: 大多数碳酸盐（CO₃²⁻）、铬酸盐（CrO₄²⁻）、硅酸盐（SiO₄⁴⁻）和磷酸盐（PO₄³⁻）是不可溶的，除了规则1（第1族元素和铵）中的化合物。<br><br>
+                        规则6: 大多数硫化物（S²⁻）是不可溶的，除了规则1（第1族元素和铵）以及钙（Ca²⁺）、钡（Ba²⁺）、锶（Sr²⁺）和镁（Mg²⁺）的化合物。<br><br>
+                        规则7: 大多数氢氧化物（OH⁻）是不可溶的，除了规则1（第1族元素和铵）以及钙（Ca²⁺）、钡（Ba²⁺）和锶（Sr²⁺）的化合物。
+                    `;
+                } else {
+                    compoundLabel.textContent = 'Enter the compound: ';
+                    element1.placeholder = 'Element1';
+                    electron1.placeholder = 'electron';
+                    element2.placeholder = 'Element2';
+                    electron2.placeholder = 'electron';
+                    submitButton.textContent = 'Submit';
+                    title.textContent = 'Soluble or Insoluble?';
+                    rulesText.innerHTML = `
+                        Rule 1: All compounds of Group 1 (Li, Na, K, etc.) and ammonium (NH₄⁺) are soluble.<br><br>
+                        Rule 2: All nitrates (NO₃⁻), acetates (CH₃COO⁻), and chlorates (ClO₃⁻) are soluble.<br><br>
+                        Rule 3: Most binary compounds of the halogens (other than fluorine) with metals are soluble, except for those of silver (Ag⁺), mercury(I) (Hg₂²⁺), and lead(II) (Pb²⁺).<br><br>
+                        Rule 4: Most sulfates (SO₄²⁻) are soluble, except for those of barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead(II) (Pb²⁺).<br><br>
+                        Rule 5: Most carbonates (CO₃²⁻), chromates (CrO₄²⁻), silicates (SiO₄⁴⁻), and phosphates (PO₄³⁻) are insoluble, except for those of rule 1 (Group 1 and ammonium).<br><br>
+                        Rule 6: Most sulfides (S²⁻) are insoluble, except for those of rule 1 (Group 1 and ammonium) and calcium (Ca²⁺), barium (Ba²⁺), strontium (Sr²⁺), and magnesium (Mg²⁺).<br><br>
+                        Rule 7: Most hydroxides (OH⁻) are insoluble, except for those of rule 1 (Group 1 and ammonium) and calcium (Ca²⁺), barium (Ba²⁺), and strontium (Sr²⁺).
+                    `;
+                }
+            }
+
+            languageSelect.addEventListener('change', updateLanguage);
+            updateLanguage();
 
             function checkAndMoveFocus(inputElement, nextElement, elementArray) {
                 if (elementArray.includes(inputElement.value)) {
@@ -116,52 +214,52 @@
             });
 
             function getResult() {
-                let result = "NOT FOUND";
+                let result = languageSelect.value === 'zh' ? "未找到" : "NOT FOUND";
                 let reason = "";
 
                 if (element1.value === "NH4" || ["Na", "K", "Rb", "Cs", "Fr"].includes(element1.value)) {
-                    result = "Soluble";
-                    reason += `Rule 1: '${element1.value}' is always soluble.  `;
+                    result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
+                    reason += languageSelect.value === 'zh' ? `规则1: '${element1.value}' 永远是可溶的.  ` : `Rule 1: '${element1.value}' is always soluble.  `;
                 }
 
                 if (["NO3", "CH3COO", "ClO3"].includes(element2.value)) {
-                    result = "Soluble";
-                    reason += `Rule 2: '${element2.value}' is soluble.  `;
+                    result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
+                    reason += languageSelect.value === 'zh' ? `规则2: '${element2.value}' 是可溶的.  ` : `Rule 2: '${element2.value}' is soluble.  `;
                 }
 
                 if (["Cl", "Br", "I"].includes(element2.value)) {
-                    result = "Soluble";
-                    reason += `Rule 3: Most halides are soluble, except for fluorine (F), and no exceptions encountered: silver (Ag⁺), mercury(I) (Hg₂²⁺), and lead(II) (Pb²⁺).  `;
-                    if (element1.value === "Ag" || (element1.value === "Hg2" && electron2.value === "2") || (element1.value === "Pb" && electron2.value === "2")) {
-                        result = "Insoluble";
-                        reason += `Rule 3: Most halides are soluble, but silver (Ag⁺), mercury(I) (Hg₂²⁺), and lead(II) (Pb²⁺) are exceptions.  `;
+                    result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
+                    reason += languageSelect.value === 'zh' ? `规则3: 大多数卤化物是可溶的，除了银 (Ag⁺)、汞 (Hg₂²⁺)、铅 (Pb²⁺).  ` : `Rule 3: Most halides are soluble, except for silver (Ag⁺), mercury (Hg₂²⁺), and lead (Pb²⁺).  `;
+                    if (["Ag", "Hg2", "Pb"].includes(element1.value)) {
+                        result = languageSelect.value === 'zh' ? "不可溶" : "Insoluble";
+                        reason += languageSelect.value === 'zh' ? `规则3: 由于 '${element1.value}' 的存在，该化合物不可溶.  ` : `Rule 3: Due to the presence of '${element1.value}', the compound is insoluble.  `;
                     }
                 }
 
                 if (element2.value === "SO4") {
-                    result = "Soluble";
-                    reason += `Rule 4: Most sulfates (SO₄²⁻) are soluble, with no exceptions encountered: barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead(II) (Pb²⁺).  `;
-                    if (["Ba", "Sr", "Ca"].includes(element1.value) || (element1.value === "Pb" && electron2.value === "2")) {
-                        result = "Insoluble";
-                        reason += `Rule 4: Most sulfates (SO₄²⁻) are soluble, but barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead(II) (Pb²⁺) are exceptions.  `;
+                    result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
+                    reason += languageSelect.value === 'zh' ? `规则4: 大多数硫酸盐 (SO₄²⁻) 是可溶的，除了钡 (Ba²⁺)、锶 (Sr²⁺)、钙 (Ca²⁺)、铅 (Pb²⁺).  ` : `Rule 4: Most sulfates (SO₄²⁻) are soluble, except for barium (Ba²⁺), strontium (Sr²⁺), calcium (Ca²⁺), and lead (Pb²⁺).  `;
+                    if (["Ba", "Sr", "Ca", "Pb"].includes(element1.value)) {
+                        result = languageSelect.value === 'zh' ? "不可溶" : "Insoluble";
+                        reason += languageSelect.value === 'zh' ? `规则4: 由于 '${element1.value}' 的存在，该化合物不可溶.  ` : `Rule 4: Due to the presence of '${element1.value}', the compound is insoluble.  `;
                     }
                 }
 
                 if (["CO3", "CrO4", "SiO4", "PO4"].includes(element2.value)) {
-                    result = "Insoluble";
-                    reason += `Rule 5: Most carbonates, chromates, silicates, and phosphates are insoluble, unless combined with Group 1 elements or ammonium (NH₄⁺).  `;
+                    result = languageSelect.value === 'zh' ? "不可溶" : "Insoluble";
+                    reason += languageSelect.value === 'zh' ? `规则5: 大多数碳酸盐、铬酸盐、硅酸盐和磷酸盐是不可溶的，除非与第 1 族元素或铵 (NH₄⁺) 结合.  ` : `Rule 5: Most carbonates, chromates, silicates, and phosphates are insoluble, unless combined with Group 1 elements or ammonium (NH₄⁺).  `;
                     if (["Li", "Na", "K", "Rb", "Cs", "Fr"].includes(element1.value)) {
-                        result = "Soluble";
-                        reason += `Rule 5: Exception: combined with Group 1 elements or ammonium (NH₄⁺).  `;
+                        result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
+                        reason += languageSelect.value === 'zh' ? `规则5: 由于与第 1 族元素或铵 (NH₄⁺) 结合，该化合物是可溶的.  ` : `Rule 5: Due to being combined with Group 1 elements or ammonium (NH₄⁺), the compound is soluble.  `;
                     }
                 }
 
                 if (element2.value === "OH") {
-                    result = "Insoluble";
-                    reason += `Rule 7: Most hydroxides (OH⁻) are insoluble, unless combined with elements from Rule 1.  `;
+                    result = languageSelect.value === 'zh' ? "不可溶" : "Insoluble";
+                    reason += languageSelect.value === 'zh' ? `规则7: 大多数氢氧化物 (OH⁻) 是不可溶的，除非与第 1 族元素或钙 (Ca)、钡 (Ba)、锶 (Sr) 结合.  ` : `Rule 7: Most hydroxides (OH⁻) are insoluble, unless combined with Group 1 elements, calcium (Ca), barium (Ba), or strontium (Sr).  `;
                     if (["Li", "Na", "K", "Rb", "Cs", "Fr", "Ca", "Ba", "Sr"].includes(element1.value)) {
-                        result = "Soluble";
-                        reason += `Rule 7: Exception: combined with Group 1 elements or calcium, barium, strontium.  `;
+                        result = languageSelect.value === 'zh' ? "可溶" : "Soluble";
+                        reason += languageSelect.value === 'zh' ? `规则7: 由于与第 1 族元素或钙、钡、锶结合，该化合物是可溶的.  ` : `Rule 7: Due to being combined with Group 1 elements or calcium, barium, strontium, the compound is soluble.  `;
                     }
                 }
 
@@ -170,6 +268,6 @@
             }
         });
     </script>
-<footer style="position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 30px; color: #aaa; padding: 10px;">This program is for reference only, and further verification may be required. Created by Lingtong Meng.</footer>
+  <footer style="position: fixed; bottom: 0; width: 50%; text-align: center; font-size: 15px; color: #aaa; padding: 10px;">This program is for reference only, and further verification may be required. Created by Lingtong Meng.</footer>
 </body>
 </html>
