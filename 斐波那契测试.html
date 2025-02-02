@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>斐波那契性能测试</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #fibNumbers { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>斐波那契性能测试</h1>
+  <p>
+    本页面将计算前 15,000 项斐波那契数，并显示计算时间。
+  </p>
+  <button id="startButton">开始计算</button>
+  <p id="timeResult"></p>
+  <div id="fibNumbers"></div>
+
+  <script>
+    // 利用 BigInt 实现斐波那契函数
+    function fibonacci(n) {
+      if (n === 1 || n === 2) return BigInt(1);
+      let a = BigInt(1), b = BigInt(1);
+      for (let i = 3; i <= n; i++) {
+        const temp = a + b;
+        a = b;
+        b = temp;
+      }
+      return b;
+    }
+
+    document.getElementById("startButton").addEventListener("click", () => {
+      const startTime = performance.now();
+
+      const fibList = [];
+      const totalTerms = 15000;
+      for (let i = 1; i <= totalTerms; i++) {
+        fibList.push(fibonacci(i));
+      }
+
+      const endTime = performance.now();
+      const duration = ((endTime - startTime) / 1000).toFixed(3);
+      document.getElementById("timeResult").textContent = `计算 ${totalTerms} 项斐波那契数列耗时 ${duration} 秒。`;
+
+      // 只显示前 50 项，防止 DOM 更新过慢
+      const displayCount = 15000;
+      const fibNumbersDiv = document.getElementById("fibNumbers");
+      fibNumbersDiv.innerHTML = '';  // 清空上次结果
+      for (let i = 0; i < Math.min(displayCount, fibList.length); i++) {
+        const para = document.createElement("p");
+        para.textContent = `${i + 1}: ${fibList[i]}`;
+        fibNumbersDiv.appendChild(para);
+      }
+    });
+  </script>
+</body>
+</html>
