@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Electronic Components Recognition</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #ffffff;
+      color: #333;
+      line-height: 1.5;
+      position: relative; /* so absolute inside body is relative to body */
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    p#instructions {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .component-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      background-color: #f9f9f9;
+    }
+    .component-card img {
+      width: 60px;
+      height: auto;
+      margin-right: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      padding: 8px;
+    }
+    .input-section {
+      flex-grow: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .input-section input {
+      flex: 1;
+      padding: 8px;
+      margin-right: 12px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      min-width: 200px;
+    }
+    .input-section button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      background: #3366cc;
+      color: #fff;
+      cursor: pointer;
+    }
+    .input-section button:hover {
+      background: #29579d;
+    }
+    .result {
+      width: 100%;
+      margin-top: 8px;
+      font-weight: bold;
+      display: none;
+    }
+    .correct {
+      color: #339900;
+    }
+    .incorrect {
+      color: #cc0000;
+    }
+    /* Make the language switch float in the top-right corner */
+    .language-switch {
+      position: absolute;
+      top: 20px;
+      right: 1px;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Language switch in the top-right corner -->
+  <div class="language-switch">
+    <label for="language-select">Language: </label>
+    <select id="language-select">
+      <option value="en">English</option>
+      <option value="cn">中文</option>
+    </select>
+  </div>
+
+  <h1 id="page-title">Electronic Circuit Symbols Practice</h1>
+  <p id="instructions">
+    Type the correct English name below and press Enter or click “Check.”<br>
+      </p>
+  
+  <div id="quiz-container"></div>
+  
+  <script>
+    // For each component, we store both English and Chinese (combined) names.
+    const components = [
+      {
+        img: 'img/connecting_lead.png',
+        englishName: 'connecting lead',
+        combinedName: '连接导线 (connecting lead)'
+      },
+      {
+        img: 'img/cell.png',
+        englishName: 'cell',
+        combinedName: '电池 (cell)'
+      },
+      {
+        img: 'img/battery.png',
+        englishName: 'battery of cells',
+        combinedName: '电池组 (battery of cells)'
+      },
+      {
+        img: 'img/fixed_resistor.png',
+        englishName: 'fixed resistor',
+        combinedName: '定值电阻 (fixed resistor)'
+      },
+      {
+        img: 'img/power_supply.png',
+        englishName: 'power supply',
+        combinedName: '电源 (power supply)'
+      },
+      {
+        img: 'img/junction.png',
+        englishName: 'junction of conductors',
+        combinedName: '导线连接点 (junction of conductors)'
+      },
+      {
+        img: 'img/crossing_conductors.png',
+        englishName: 'crossing conductors (no connection)',
+        combinedName: '导线交叉（无连接） (crossing conductors (no connection))'
+      },
+      {
+        img: 'img/filament_lamp.png',
+        englishName: 'filament lamp',
+        combinedName: '灯泡 (filament lamp)'
+      },
+      {
+        img: 'img/voltmeter.png',
+        englishName: 'voltmeter',
+        combinedName: '电压表 (voltmeter)'
+      },
+      {
+        img: 'img/ammeter.png',
+        englishName: 'ammeter',
+        combinedName: '电流表 (ammeter)'
+      },
+      {
+        img: 'img/switch.png',
+        englishName: 'switch',
+        combinedName: '开关 (switch)'
+      },
+      {
+        img: 'img/variable_resistor.png',
+        englishName: 'variable resistor',
+        combinedName: '可变电阻 (variable resistor)'
+      },
+      {
+        img: 'img/microphone.png',
+        englishName: 'microphone',
+        combinedName: '话筒 (microphone)'
+      },
+      {
+        img: 'img/loudspeaker.png',
+        englishName: 'loudspeaker',
+        combinedName: '扬声器 (loudspeaker)'
+      },
+      {
+        img: 'img/fuse.png',
+        englishName: 'fuse',
+        combinedName: '保险丝 (fuse)'
+      },
+      {
+        img: 'img/earth.png',
+        englishName: 'earth',
+        combinedName: '接地 (earth)'
+      },
+      {
+        img: 'img/ac_signal.png',
+        englishName: 'alternating signal',
+        combinedName: '交流信号 (alternating signal)'
+      },
+      {
+        img: 'img/capacitor.png',
+        englishName: 'capacitor',
+        combinedName: '电容器 (capacitor)'
+      },
+      {
+        img: 'img/thermistor.png',
+        englishName: 'thermistor',
+        combinedName: '热敏电阻 (thermistor)'
+      },
+      {
+        img: 'img/ldr.png',
+        englishName: 'light-dependent resistor (LDR)',
+        combinedName: '光敏电阻 (light-dependent resistor (LDR))'
+      },
+      {
+        img: 'img/diode.png',
+        englishName: 'semiconductor diode',
+        combinedName: '半导体二极管 (semiconductor diode)'
+      },
+      {
+        img: 'img/led.png',
+        englishName: 'light-emitting diode (LED)',
+        combinedName: '发光二极管 (light-emitting diode (LED))'
+      }
+    ];
+
+    // Text strings in English and Chinese
+    const strings = {
+      en: {
+        quizTitle: 'Electronic Circuit Symbols Practice',
+        instructions: 'Type the correct English name below and press Enter or click “Check.” ',
+        placeholder: 'Enter the English name...',
+        checkBtn: 'Check',
+        correctMsg: correctName => `Correct! The correct name is: ${correctName}`,
+        incorrectMsg: correctName => `Incorrect. The correct name is: ${correctName}`
+      },
+      cn: {
+        quizTitle: '电子电路符号练习',
+        instructions: '请在下方输入正确的英文名称，然后按Enter或点击“检查”。',
+        placeholder: '请输入英文名称...',
+        checkBtn: '检查',
+        correctMsg: correctName => `正确！正确名称是：${correctName}`,
+        incorrectMsg: correctName => `错误。正确名称是：${correctName}`
+      }
+    };
+
+    // Current language (default 'en')
+    let currentLanguage = 'en';
+
+    // Utility: remove parentheses and convert to lowercase
+    function stripParentheses(str) {
+      return str.replace(/\(.*?\)/g, '').trim();
+    }
+    function normalize(str) {
+      return stripParentheses(str).toLowerCase();
+    }
+
+    // Compare user input to the English name
+    function isCorrect(userInput, englishName) {
+      return normalize(userInput) === normalize(englishName);
+    }
+
+    // We'll keep references to inputs/results so we can re-check on language switch
+    const elements = [];
+
+    window.onload = function() {
+      const container = document.getElementById('quiz-container');
+
+      components.forEach((comp, index) => {
+        // Create a card
+        const card = document.createElement('div');
+        card.className = 'component-card';
+
+        // Symbol image
+        const img = document.createElement('img');
+        img.src = comp.img;
+        img.alt = 'symbol';
+
+        // Input & button wrapper
+        const inputSection = document.createElement('div');
+        inputSection.className = 'input-section';
+
+        // Text input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = strings[currentLanguage].placeholder;
+        input.id = 'input-' + index;
+
+        // Check button
+        const checkBtn = document.createElement('button');
+        checkBtn.textContent = strings[currentLanguage].checkBtn;
+
+        // Result message
+        const result = document.createElement('div');
+        result.id = 'result-' + index;
+        result.className = 'result';
+
+        // Check function
+        function handleCheck() {
+          const userVal = input.value;
+          const correct = isCorrect(userVal, comp.englishName);
+          // Decide which name to display (English or combined)
+          const displayName = (currentLanguage === 'en') ? comp.englishName : comp.combinedName;
+
+          if (correct) {
+            result.textContent = strings[currentLanguage].correctMsg(displayName);
+            result.className = 'result correct';
+          } else {
+            result.textContent = strings[currentLanguage].incorrectMsg(displayName);
+            result.className = 'result incorrect';
+          }
+          result.style.display = 'block';
+        }
+
+        // Add event for button
+        checkBtn.onclick = handleCheck;
+
+        // Add event for Enter key
+        input.addEventListener('keyup', function (event) {
+          if (event.key === 'Enter') {
+            handleCheck();
+          }
+        });
+
+        // Remember these elements for language switching
+        elements.push({
+          index,
+          comp,
+          input,
+          result,
+          checkBtn
+        });
+
+        // Assemble
+        inputSection.appendChild(input);
+        inputSection.appendChild(checkBtn);
+        inputSection.appendChild(result);
+
+        card.appendChild(img);
+        card.appendChild(inputSection);
+        container.appendChild(card);
+      });
+
+      // Set up language select
+      const langSelect = document.getElementById('language-select');
+      langSelect.value = currentLanguage;
+      langSelect.addEventListener('change', (e) => {
+        switchLanguage(e.target.value);
+      });
+    };
+
+    function switchLanguage(lang) {
+      currentLanguage = lang;
+
+      // Update main texts
+      document.getElementById('page-title').textContent = strings[lang].quizTitle;
+      document.getElementById('instructions').textContent = strings[lang].instructions;
+
+      // Update each component's placeholder, button text, and re-check if result is visible
+      elements.forEach(({ comp, input, result, checkBtn }) => {
+        // Update placeholder & button text
+        input.placeholder = strings[lang].placeholder;
+        checkBtn.textContent = strings[lang].checkBtn;
+
+        // If result is visible, re-check so that message is shown in the correct language
+        if (result.style.display === 'block') {
+          const userVal = input.value;
+          const correct = isCorrect(userVal, comp.englishName);
+          const displayName = (lang === 'en') ? comp.englishName : comp.combinedName;
+          
+          if (correct) {
+            result.textContent = strings[lang].correctMsg(displayName);
+            result.className = 'result correct';
+          } else {
+            result.textContent = strings[lang].incorrectMsg(displayName);
+            result.className = 'result incorrect';
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
