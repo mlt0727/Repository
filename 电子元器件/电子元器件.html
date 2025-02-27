@@ -70,6 +70,8 @@
       width: 100%;
       margin-top: 8px;
       font-weight: bold;
+      flex-basis: 100%;
+      word-wrap: break-word;
       display: none;
     }
     .correct {
@@ -100,8 +102,8 @@
 
   <h1 id="page-title">Electronic Circuit Symbols Practice</h1>
   <p id="instructions">
-    Type the correct English name below and press Enter or click “Check.”<br>
-      </p>
+    Type the correct English name below and press Enter or click “Check.”
+  </p>
   
   <div id="quiz-container"></div>
   
@@ -220,11 +222,19 @@
       }
     ];
 
+    // Shuffle function (Fisher-Yates)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
     // Text strings in English and Chinese
     const strings = {
       en: {
         quizTitle: 'Electronic Circuit Symbols Practice',
-        instructions: 'Type the correct English name below and press Enter or click “Check.” ',
+        instructions: 'Type the correct English name below and press Enter or click “Check.”',
         placeholder: 'Enter the English name...',
         checkBtn: 'Check',
         correctMsg: correctName => `Correct! The correct name is: ${correctName}`,
@@ -260,6 +270,9 @@
     const elements = [];
 
     window.onload = function() {
+      // First, shuffle the components
+      shuffleArray(components);
+
       const container = document.getElementById('quiz-container');
 
       components.forEach((comp, index) => {
